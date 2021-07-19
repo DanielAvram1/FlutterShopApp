@@ -4,13 +4,15 @@ class CartItem {
   final String title;
   final String id;
   final double price;
-  final int quantity;
+  int quantity;
+  final String imageUrl;
 
   CartItem({
     required this.id,
     required this.title,
     required this.price,
-    required this.quantity
+    required this.imageUrl,
+    required this.quantity,
   });
 }
 
@@ -31,12 +33,13 @@ class Cart with ChangeNotifier {
     return total;
   }
 
-  void addItem(String productId, double price, String title) {
+  void addItem(String productId, double price, String title, String imageUrl) {
     if(_items.containsKey(productId))
       _items.update(productId, (pred) => CartItem(
         id: pred.id,
         title: pred.title,
         price: pred.price,
+        imageUrl: imageUrl,
         quantity: pred.quantity + 1
       ));
     else
@@ -44,8 +47,20 @@ class Cart with ChangeNotifier {
       id: DateTime.now().toString(), 
       title: title,
       price: price,
+      imageUrl: imageUrl,
       quantity: 1
     ));
+    notifyListeners();
+  }
+  void addQuantityTo({required String key, int toAdd = 1}){
+    if(items[key]!.quantity + toAdd >= 0){
+      items[key]!.quantity += toAdd;
+      notifyListeners();
+    }
+  }
+
+  void deleteByKey(String key) {
+    _items.remove(key);
     notifyListeners();
   }
 

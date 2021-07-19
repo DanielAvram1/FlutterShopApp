@@ -8,7 +8,7 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
+    final remainingHeight = MediaQuery.of(context).size.height - AppBar().preferredSize.height;
     final Cart cart = Provider.of<Cart>(context);
 
     return Scaffold(
@@ -18,8 +18,10 @@ class CartScreen extends StatelessWidget {
       body: Column(
         children: [
           Card(
+            
             margin: EdgeInsets.all(15),
-            child: Padding(
+            child: Container(
+              height: remainingHeight * 0.1,
               padding: EdgeInsets.all(8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -56,6 +58,60 @@ class CartScreen extends StatelessWidget {
               )
             )
           ),
+          Container(
+            height: remainingHeight * 0.75,
+            child: ListView.builder(
+              itemCount: cart.itemCount,
+              itemBuilder: (ctx, i) {
+                String key = cart.items.keys.elementAt(i);
+                CartItem value = cart.items[key] as CartItem;
+                return Card(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        value.title
+                      ),
+                      Text(
+                        '${value.price}\$'
+                      ),
+                      
+                      Row(
+                        children: [
+                          TextButton(
+                            child: Text('-'),
+                            onPressed: () {
+                              cart.addQuantityTo(key: key, toAdd: -1);
+                            },
+                            
+                          ),
+                          Text(
+                            '${value.quantity}'
+                          ),
+                          TextButton(
+                            child: Text('+'),
+                            onPressed: () {
+                              cart.addQuantityTo(key: key);
+                            },
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '${value.price * value.quantity}\$'
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          cart.deleteByKey(key);
+                        },
+                        color: Colors.red,
+                      )
+                    ],
+                  )
+                );
+              } 
+            ),
+          )
         ],
       ),
 
