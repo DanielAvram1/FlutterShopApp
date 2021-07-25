@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fluttershopapp/providers/cart.dart';
+import 'package:fluttershopapp/providers/cart.dart' show Cart;
+import 'package:fluttershopapp/providers/orders.dart';
+import 'package:fluttershopapp/widgets/cart_item.dart';
 import 'package:provider/provider.dart';
 
 class CartScreen extends StatelessWidget {
@@ -36,7 +38,7 @@ class CartScreen extends StatelessWidget {
                   Spacer(),
                   Chip(
                     label: Text(
-                      '\$${cart.totalAmount}',
+                      '\$${cart.totalAmount.toStringAsFixed(2)}',
                       style: TextStyle(
                         color: Theme.of(context).primaryTextTheme.title!.color
                          
@@ -51,66 +53,29 @@ class CartScreen extends StatelessWidget {
                         color: Theme.of(context).primaryColor
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Provider.of<Orders>(context, listen: false).addOrder(
+                        cart.items.values.toList(),
+                        cart.totalAmount
+                      );
+                      cart.clear();
+                    },
                     
                   )
                 ],
               )
             )
           ),
-          Container(
-            height: remainingHeight * 0.75,
+          SizedBox(height: 10),
+          Expanded(
             child: ListView.builder(
               itemCount: cart.itemCount,
-              itemBuilder: (ctx, i) {
-                String key = cart.items.keys.elementAt(i);
-                CartItem value = cart.items[key] as CartItem;
-                return Card(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        value.title
-                      ),
-                      Text(
-                        '${value.price}\$'
-                      ),
-                      
-                      Row(
-                        children: [
-                          TextButton(
-                            child: Text('-'),
-                            onPressed: () {
-                              cart.addQuantityTo(key: key, toAdd: -1);
-                            },
-                            
-                          ),
-                          Text(
-                            '${value.quantity}'
-                          ),
-                          TextButton(
-                            child: Text('+'),
-                            onPressed: () {
-                              cart.addQuantityTo(key: key);
-                            },
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '${value.price * value.quantity}\$'
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          cart.deleteByKey(key);
-                        },
-                        color: Colors.red,
-                      )
-                    ],
-                  )
-                );
-              } 
-            ),
+              itemBuilder: (ctxt, i) => CartItem(
+                cart.items.values.toList()[i].id,
+                cart.items.keys.toList()[i],
+                cart.items.values.toList()[i].price, 
+                cart.items.values.toList()[i].quantity, 
+                cart.items.values.toList()[i].title)),
           )
         ],
       ),
